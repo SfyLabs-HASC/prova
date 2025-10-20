@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-// @ts-ignore - DKG SDK might not have up-to-date types
-import { DKG } from "@neuroweb/dkg-sdk";
+import { DKG } from "@origintrail/dkg-client";
 import { ethers } from "ethers";
 
 const App: React.FC = () => {
