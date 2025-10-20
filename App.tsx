@@ -39,17 +39,19 @@ const App: React.FC = () => {
 
       // Initialize NeuroWeb DKG SDK
       const dkg = new DKG({ 
-        provider, 
-        wallet, 
-        network: "testnet",
-        blockchain: "otp",
-        nodeHost: "https://lofar-testnet.origin-trail.network",
-        nodePort: 443
+        environment: "testnet",
+        endpoint: "https://lofar-testnet.origin-trail.network",
+        port: 8900,
+        blockchain: {
+          name: "otp:20430",
+          publicKey: wallet.address,
+          privateKey: process.env.REACT_APP_PRIVATE_KEY
+        }
       });
 
       // Create the Knowledge Asset
-      const ka = await dkg.asset.create({
-        data: {
+      const content = {
+        public: {
           "@context": {
             "sc": "https://simplychain.it/schema#",
             "schema": "https://schema.org/"
@@ -60,17 +62,12 @@ const App: React.FC = () => {
           "sc:productionDate": form.productionDate,
           "sc:origin": form.origin,
           "sc:documentHash": form.documentHash
-        },
-        visibility: "public",
-        keywords: ["product", "test", "demo"],
-        blockchain: {
-          name: "otp::testnet",
-          publicKey: wallet.address
-        },
-        environment: "testnet"
-      });
+        }
+      };
+      
+      const ka = await dkg.asset.create(content, { epochsNum: 2 });
 
-      setStatus(`KA creato con successo! ID: ${ka.id}`);
+      setStatus(`KA creato con successo! UAL: ${ka.UAL}`);
     } catch (err: any) {
       console.error(err);
       let errorMessage = "Errore nella creazione del KA: ";
