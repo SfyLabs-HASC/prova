@@ -25,7 +25,7 @@ const App: React.FC = () => {
     try {
       // Setup provider for NeuroWeb Testnet
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://testnet.neuroweb.io/rpc"
+        "https://rpc.neuroweb.io"
       );
       
       if (!process.env.REACT_APP_PRIVATE_KEY) {
@@ -38,7 +38,12 @@ const App: React.FC = () => {
       );
 
       // Initialize NeuroWeb DKG SDK
-      const dkg = new DKG({ provider, wallet, network: "testnet" });
+      const dkg = new DKG({ 
+        provider, 
+        wallet, 
+        network: "testnet",
+        blockchain: "neuroweb"
+      });
 
       // Create the Knowledge Asset
       const ka = await dkg.asset.create({
