@@ -62,13 +62,30 @@ const App: React.FC = () => {
           "sc:documentHash": form.documentHash
         },
         visibility: "public",
-        keywords: ["product", "test", "demo"]
+        keywords: ["product", "test", "demo"],
+        blockchain: {
+          name: "otp::testnet",
+          publicKey: wallet.address
+        },
+        environment: "testnet"
       });
 
       setStatus(`KA creato con successo! ID: ${ka.id}`);
     } catch (err: any) {
       console.error(err);
-      setStatus("Errore nella creazione del KA: " + err.message);
+      let errorMessage = "Errore nella creazione del KA: ";
+      
+      if (err.message?.includes("blockchain name is missing")) {
+        errorMessage += "Configurazione blockchain mancante. Verifica le impostazioni.";
+      } else if (err.code === "NETWORK_ERROR" || err.message?.includes("ERR_NAME_NOT_RESOLVED")) {
+        errorMessage += "Errore di connessione alla rete. Verifica la tua connessione internet e che il nodo sia raggiungibile.";
+      } else if (err.message?.includes("REACT_APP_PRIVATE_KEY")) {
+        errorMessage += err.message;
+      } else {
+        errorMessage += err.message || "Errore sconosciuto";
+      }
+      
+      setStatus(errorMessage);
     } finally {
       setIsLoading(false);
     }

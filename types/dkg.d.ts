@@ -23,10 +23,17 @@ declare module 'dkg.js' {
     'sc:documentHash': string;
   }
 
+  interface BlockchainConfig {
+    name: string;
+    publicKey: string;
+  }
+
   interface CreateAssetOptions {
     data: KnowledgeAssetData;
     visibility: 'public' | 'private';
     keywords: string[];
+    blockchain?: BlockchainConfig;
+    environment?: string;
   }
 
   interface KnowledgeAsset {
