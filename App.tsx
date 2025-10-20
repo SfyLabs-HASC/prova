@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { DKG } from "@origintrail/dkg-client";
+import DKG from "dkg.js";
 import { ethers } from "ethers";
 
 const App: React.FC = () => {
