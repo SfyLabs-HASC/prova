@@ -5,7 +5,7 @@ declare module 'dkg.js' {
     provider: providers.Provider;
     wallet: Wallet;
     network: string;
-    blockchainName: string;
+    blockchain: string;
     nodeHost: string;
     nodePort: number;
   }

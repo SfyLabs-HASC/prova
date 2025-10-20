@@ -42,7 +42,7 @@ const App: React.FC = () => {
         provider, 
         wallet, 
         network: "testnet",
-        blockchainName: "otp",
+        blockchain: "otp",
         nodeHost: "https://lofar-testnet.origin-trail.network",
         nodePort: 443
       });
