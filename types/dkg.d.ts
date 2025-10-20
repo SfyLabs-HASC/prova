@@ -5,7 +5,7 @@ declare module 'dkg.js' {
     provider: providers.Provider;
     wallet: Wallet;
     network: string;
-    blockchain: string;
+    blockchainName: string;
   }
 
   interface KnowledgeAssetData {

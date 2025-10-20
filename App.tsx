@@ -25,7 +25,7 @@ const App: React.FC = () => {
     try {
       // Setup provider for NeuroWeb Testnet
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://rpc.neuroweb.io"
+        "https://testnet.neuroweb.io"
       );
       
       if (!process.env.REACT_APP_PRIVATE_KEY) {
@@ -42,7 +42,9 @@ const App: React.FC = () => {
         provider, 
         wallet, 
         network: "testnet",
-        blockchain: "neuroweb"
+        blockchainName: "neuroweb",
+        nodeHost: "https://testnet.neuroweb.io",
+        nodePort: 443
       });
 
       // Create the Knowledge Asset
