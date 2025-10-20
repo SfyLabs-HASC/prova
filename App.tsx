@@ -39,17 +39,19 @@ const App: React.FC = () => {
 
       // Initialize NeuroWeb DKG SDK
       const dkg = new DKG({ 
-        provider, 
-        wallet, 
-        network: "testnet",
-        blockchain: "otp",
-        nodeHost: "https://lofar-testnet.origin-trail.network",
-        nodePort: 443
+        environment: "testnet",
+        endpoint: "https://lofar-testnet.origin-trail.network",
+        port: 8900,
+        blockchain: {
+          name: "otp:20430",
+          publicKey: wallet.address,
+          privateKey: process.env.REACT_APP_PRIVATE_KEY
+        }
       });
 
       // Create the Knowledge Asset
-      const ka = await dkg.asset.create({
-        data: {
+      const content = {
+        public: {
           "@context": {
             "sc": "https://simplychain.it/schema#",
             "schema": "https://schema.org/"
@@ -60,15 +62,27 @@ const App: React.FC = () => {
           "sc:productionDate": form.productionDate,
           "sc:origin": form.origin,
           "sc:documentHash": form.documentHash
-        },
-        visibility: "public",
-        keywords: ["product", "test", "demo"]
-      });
+        }
+      };
+      
+      const ka = await dkg.asset.create(content, { epochsNum: 2 });
 
-      setStatus(`KA creato con successo! ID: ${ka.id}`);
+      setStatus(`KA creato con successo! UAL: ${ka.UAL}`);
     } catch (err: any) {
       console.error(err);
-      setStatus("Errore nella creazione del KA: " + err.message);
+      let errorMessage = "Errore nella creazione del KA: ";
+      
+      if (err.message?.includes("blockchain name is missing")) {
+        errorMessage += "Configurazione blockchain mancante. Verifica le impostazioni.";
+      } else if (err.code === "NETWORK_ERROR" || err.message?.includes("ERR_NAME_NOT_RESOLVED")) {
+        errorMessage += "Errore di connessione alla rete. Verifica la tua connessione internet e che il nodo sia raggiungibile.";
+      } else if (err.message?.includes("REACT_APP_PRIVATE_KEY")) {
+        errorMessage += err.message;
+      } else {
+        errorMessage += err.message || "Errore sconosciuto";
+      }
+      
+      setStatus(errorMessage);
     } finally {
       setIsLoading(false);
     }

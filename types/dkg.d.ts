@@ -1,40 +1,55 @@
 declare module 'dkg.js' {
-  import { providers, Wallet } from 'ethers';
-
-  interface DKGConfig {
-    provider: providers.Provider;
-    wallet: Wallet;
-    network: string;
-    blockchain: string;
-    nodeHost: string;
-    nodePort: number;
+  interface BlockchainConfig {
+    name: string;
+    publicKey: string;
+    privateKey?: string;
+    rpc?: string;
+    hubContract?: string;
   }
 
-  interface KnowledgeAssetData {
-    '@context': {
-      sc: string;
-      schema: string;
+  interface DKGConfig {
+    environment: string;
+    endpoint: string;
+    port: number;
+    blockchain: BlockchainConfig;
+    maxNumberOfRetries?: number;
+    frequency?: number;
+    contentType?: string;
+  }
+
+  interface AssetContent {
+    public?: {
+      '@context': any;
+      '@type'?: string;
+      [key: string]: any;
     };
-    '@type': string;
-    'schema:name': string;
-    'schema:description': string;
-    'sc:productionDate': string;
-    'sc:origin': string;
-    'sc:documentHash': string;
+    private?: {
+      '@context': any;
+      '@graph'?: any[];
+      [key: string]: any;
+    };
   }
 
   interface CreateAssetOptions {
-    data: KnowledgeAssetData;
-    visibility: 'public' | 'private';
-    keywords: string[];
+    epochsNum: number;
+    immutable?: boolean;
+    tokenAmount?: string;
+    paranetUAL?: string;
   }
 
   interface KnowledgeAsset {
-    id: string;
+    UAL: string;
+    publicAssertionId: string;
+    operation: {
+      [key: string]: any;
+    };
   }
 
   interface AssetManager {
-    create(options: CreateAssetOptions): Promise<KnowledgeAsset>;
+    create(content: AssetContent, options: CreateAssetOptions): Promise<KnowledgeAsset>;
+    get(ual: string, options?: any): Promise<any>;
+    update(ual: string, content: AssetContent, options?: CreateAssetOptions): Promise<KnowledgeAsset>;
+    getOwner(ual: string): Promise<string>;
   }
 
   class DKG {
