@@ -1,0 +1,5 @@
+{
+  "name": "Blank React App for Vercel",
+  "description": "A clean, empty React application template using TypeScript and Tailwind CSS, ready for development and deployment on Vercel.",
+  "requestFramePermissions": []
+}
