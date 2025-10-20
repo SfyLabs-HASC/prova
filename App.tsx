@@ -25,7 +25,7 @@ const App: React.FC = () => {
     try {
       // Setup provider for NeuroWeb Testnet
       const provider = new ethers.providers.JsonRpcProvider(
-        "https://testnet.neuroweb.io"
+        "https://lofar-testnet.origin-trail.network"
       );
       
       if (!process.env.REACT_APP_PRIVATE_KEY) {
@@ -42,8 +42,8 @@ const App: React.FC = () => {
         provider, 
         wallet, 
         network: "testnet",
-        blockchainName: "neuroweb",
-        nodeHost: "https://testnet.neuroweb.io",
+        blockchainName: "otp",
+        nodeHost: "https://lofar-testnet.origin-trail.network",
         nodePort: 443
       });
 

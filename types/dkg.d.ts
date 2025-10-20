@@ -6,6 +6,8 @@ declare module 'dkg.js' {
     wallet: Wallet;
     network: string;
     blockchainName: string;
+    nodeHost: string;
+    nodePort: number;
   }
 
   interface KnowledgeAssetData {
