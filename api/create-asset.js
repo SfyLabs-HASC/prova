@@ -1,6 +1,6 @@
-import DKG from 'dkg.js';
+const DKG = require('dkg.js');
 
-export default async (req, res) => {
+module.exports = async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -26,21 +26,45 @@ export default async (req, res) => {
     }
 
     console.log('[API] Initializing DKG SDK...');
-    // Inizializza DKG SDK v8 con variabili d'ambiente
+    
+    // Configurazione per NeuroWeb testnet
     const dkg = new DKG({
-      environment: process.env.DKG_ENV || 'testnet',
-      endpoint: process.env.DKG_ENDPOINT || 'https://v6-pegasus-node-02.origin-trail.network',
-      port: Number(process.env.DKG_PORT || 8900),
+      environment: 'testnet',
+      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
+      port: 8900,
       blockchain: {
-        name: process.env.DKG_CHAIN_NAME || 'otp:20430',
+        name: 'otp:20430', // NeuroWeb testnet chain ID
         privateKey: process.env.PRIVATE_KEY,
-        hubContract: process.env.DKG_HUB_CONTRACT || '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
-        ...(process.env.DKG_RPC ? { rpc: process.env.DKG_RPC } : {}),
+        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+        rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
       },
-      nodeApiVersion: process.env.DKG_NODE_API_VERSION || '/v1',
+      nodeApiVersion: '/v1',
+      maxNumberOfRetries: 30,
+      frequency: 2,
+    });
+
+    console.log('[API] DKG configuration:', {
+      environment: 'testnet',
+      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
+      port: 8900,
+      blockchain: {
+        name: 'otp:20430',
+        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+        rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
+      },
+      nodeApiVersion: '/v1',
     });
 
     console.log('[API] DKG SDK initialized successfully');
+
+    // Verifica che il wallet sia registrato
+    console.log('[API] Checking wallet registration...');
+    try {
+      const walletInfo = await dkg.wallet.getBalance();
+      console.log('[API] Wallet balance:', walletInfo);
+    } catch (walletError) {
+      console.warn('[API] Wallet check failed:', walletError.message);
+    }
 
     const content = {
       public: {
@@ -58,11 +82,19 @@ export default async (req, res) => {
     };
 
     console.log('[API] Calling dkg.asset.create...');
-    // Crea il Knowledge Asset
-    const result = await dkg.asset.create(content, {
-      epochsNum: Number(process.env.EPOCHS_NUM || 1),
-      scoreFunctionId: Number(process.env.SCORE_FUNCTION_ID || 2),
+    console.log('[API] Content to create:', JSON.stringify(content, null, 2));
+    
+    // Crea il Knowledge Asset con timeout
+    const createAssetPromise = dkg.asset.create(content, {
+      epochsNum: 1,
+      scoreFunctionId: 2,
     });
+    
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000); // 5 minutes
+    });
+    
+    const result = await Promise.race([createAssetPromise, timeoutPromise]);
 
     console.log('[API] Asset created successfully!', result);
     return res.status(200).json({
@@ -74,9 +106,24 @@ export default async (req, res) => {
   } catch (error) {
     console.error('[API] Error creating asset:', error);
     console.error('[API] Error stack:', error.stack);
+    
+    // Provide more specific error messages
+    let errorMessage = error.message || 'Failed to create Knowledge Asset';
+    
+    if (error.message.includes('insufficient funds')) {
+      errorMessage = 'Insufficient funds in wallet. Please ensure you have enough NEURO and TRAC tokens.';
+    } else if (error.message.includes('network')) {
+      errorMessage = 'Network error. Please check your internet connection and try again.';
+    } else if (error.message.includes('timeout')) {
+      errorMessage = 'Request timeout. The operation took too long. Please try again.';
+    } else if (error.message.includes('PRIVATE_KEY')) {
+      errorMessage = 'Wallet configuration error. Please check your private key.';
+    }
+    
     return res.status(500).json({
-      error: error.message || 'Failed to create Knowledge Asset',
+      error: errorMessage,
       details: error.toString(),
+      type: error.name || 'UnknownError',
     });
   }
 };
