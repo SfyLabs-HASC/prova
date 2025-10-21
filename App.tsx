@@ -44,8 +44,13 @@ const App: React.FC = () => {
 
       setStatus(`✅ KA creato con successo! UAL: ${data.UAL}`);
     } catch (err: any) {
-      console.error("Errore:", err);
-      setStatus(`❌ Errore: ${err.message}`);
+      console.error("Errore completo:", err);
+      
+      if (err.name === 'AbortError') {
+        setStatus(`❌ Timeout: La richiesta ha impiegato troppo tempo (>2 minuti). Riprova.`);
+      } else {
+        setStatus(`❌ Errore: ${err.message || 'Errore sconosciuto'}`);
+      }
     } finally {
       setIsLoading(false);
     }

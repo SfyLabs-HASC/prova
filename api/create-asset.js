@@ -16,12 +16,16 @@ export default async (req, res) => {
   }
 
   try {
+    console.log('[API] Received request to create asset');
     const { name, description, productionDate, origin, documentHash } = req.body;
+    console.log('[API] Form data:', { name, description, productionDate, origin, documentHash });
 
     if (!process.env.PRIVATE_KEY) {
+      console.error('[API] PRIVATE_KEY missing!');
       throw new Error('PRIVATE_KEY environment variable is missing');
     }
 
+    console.log('[API] Initializing DKG SDK...');
     // Inizializza DKG SDK v8
     const dkg = new DKG({
       environment: 'testnet',
@@ -34,6 +38,8 @@ export default async (req, res) => {
       },
       nodeApiVersion: '/v1',
     });
+
+    console.log('[API] DKG SDK initialized successfully');
 
     const content = {
       public: {
@@ -50,11 +56,14 @@ export default async (req, res) => {
       },
     };
 
+    console.log('[API] Calling dkg.asset.create...');
+    // Crea il Knowledge Asset
     const result = await dkg.asset.create(content, {
       epochsNum: 2,
       scoreFunctionId: 2,
     });
 
+    console.log('[API] Asset created successfully!', result);
     return res.status(200).json({
       success: true,
       UAL: result.UAL,
@@ -62,9 +71,11 @@ export default async (req, res) => {
     });
 
   } catch (error) {
-    console.error('Error creating asset:', error);
+    console.error('[API] Error creating asset:', error);
+    console.error('[API] Error stack:', error.stack);
     return res.status(500).json({
       error: error.message || 'Failed to create Knowledge Asset',
+      details: error.toString(),
     });
   }
 };
