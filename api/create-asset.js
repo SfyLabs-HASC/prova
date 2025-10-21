@@ -1,5 +1,3 @@
-import DKG from 'dkg.js';
-
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -20,76 +18,17 @@ export default async function handler(req, res) {
     const { name, description, productionDate, origin, documentHash } = req.body;
     console.log('[API] Form data:', { name, description, productionDate, origin, documentHash });
 
-    if (!process.env.PRIVATE_KEY) {
-      console.error('[API] PRIVATE_KEY missing!');
-      throw new Error('PRIVATE_KEY environment variable is missing');
-    }
+    // Basic response without DKG for now
+    const mockUAL = `did:dkg:otp:20430:${Date.now()}`;
+    const mockAssertionId = `0x${Math.random().toString(16).substr(2, 8)}`;
 
-    console.log('[API] Initializing DKG SDK...');
-    
-    // Configurazione per NeuroWeb testnet
-    const dkgConfig = {
-      environment: 'testnet',
-      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
-      port: 8900,
-      blockchain: {
-        name: 'otp:20430',
-        privateKey: process.env.PRIVATE_KEY,
-        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
-        rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
-      },
-      nodeApiVersion: '/v1',
-      maxNumberOfRetries: 30,
-      frequency: 2,
-    };
-
-    console.log('[API] DKG config:', JSON.stringify(dkgConfig, null, 2));
-
-    const dkg = new DKG(dkgConfig);
-    console.log('[API] DKG instance created');
-
-    // Test if DKG is properly initialized
-    if (!dkg || !dkg.wallet) {
-      throw new Error('DKG initialization failed - wallet not available');
-    }
-
-    console.log('[API] DKG SDK initialized successfully');
-
-    const content = {
-      public: {
-        '@context': {
-          sc: 'https://simplychain.it/schema#',
-          schema: 'https://schema.org/',
-        },
-        '@type': 'sc:CertifiedProduct',
-        'schema:name': name,
-        'schema:description': description,
-        'sc:productionDate': productionDate,
-        'sc:origin': origin,
-        'sc:documentHash': documentHash,
-      },
-    };
-
-    console.log('[API] Calling dkg.asset.create...');
-    console.log('[API] Content to create:', JSON.stringify(content, null, 2));
-    
-    // Crea il Knowledge Asset con timeout
-    const createAssetPromise = dkg.asset.create(content, {
-      epochsNum: 1,
-      scoreFunctionId: 2,
-    });
-    
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000); // 5 minutes
-    });
-    
-    const result = await Promise.race([createAssetPromise, timeoutPromise]);
-
-    console.log('[API] Asset created successfully!', result);
     return res.status(200).json({
       success: true,
-      UAL: result.UAL,
-      publicAssertionId: result.publicAssertionId,
+      UAL: mockUAL,
+      publicAssertionId: mockAssertionId,
+      message: 'Mock asset created - DKG integration pending',
+      hasPrivateKey: !!process.env.PRIVATE_KEY,
+      privateKeyLength: process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY.length : 0
     });
 
     console.log('[API] DKG configuration:', {

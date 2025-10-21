@@ -1,5 +1,3 @@
-import DKG from 'dkg.js';
-
 export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -18,76 +16,15 @@ export default async function handler(req, res) {
   try {
     console.log('[API] Checking wallet status...');
 
-    if (!process.env.PRIVATE_KEY) {
-      return res.status(500).json({ 
-        error: 'PRIVATE_KEY environment variable is missing',
-        status: 'error'
-      });
-    }
-
-    console.log('[API] PRIVATE_KEY found, length:', process.env.PRIVATE_KEY.length);
-
-    // Configurazione per NeuroWeb testnet
-    const dkgConfig = {
-      environment: 'testnet',
-      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
-      port: 8900,
-      blockchain: {
-        name: 'otp:20430',
-        privateKey: process.env.PRIVATE_KEY,
-        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
-        rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
-      },
-      nodeApiVersion: '/v1',
-      maxNumberOfRetries: 30,
-      frequency: 2,
-    };
-
-    console.log('[API] DKG config:', JSON.stringify(dkgConfig, null, 2));
-
-    const dkg = new DKG(dkgConfig);
-    console.log('[API] DKG instance created');
-
-    // Test if DKG is properly initialized
-    if (!dkg || !dkg.wallet) {
-      throw new Error('DKG initialization failed - wallet not available');
-    }
-
-    console.log('[API] DKG SDK initialized successfully');
-
-    // Test DKG connection first
-    try {
-      const nodeInfo = await dkg.node.info();
-      console.log('[API] DKG node info:', nodeInfo);
-    } catch (nodeError) {
-      console.warn('[API] DKG node connection failed:', nodeError.message);
-    }
-
-    // Get wallet address
-    const address = await dkg.wallet.getAddress();
-    console.log('[API] Wallet address:', address);
-
-    // Get wallet balance with timeout
-    let balance = null;
-    try {
-      balance = await Promise.race([
-        dkg.wallet.getBalance(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Balance check timeout')), 10000)
-        )
-      ]);
-      console.log('[API] Wallet balance:', balance);
-    } catch (balanceError) {
-      console.warn('[API] Balance check failed:', balanceError.message);
-      balance = 'Unable to fetch balance';
-    }
-
+    // Basic response without DKG for now
     return res.status(200).json({
       status: 'success',
-      address: address,
-      balance: balance,
+      message: 'API is working',
+      hasPrivateKey: !!process.env.PRIVATE_KEY,
+      privateKeyLength: process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY.length : 0,
       network: 'NeuroWeb Testnet',
-      chainId: 'otp:20430'
+      chainId: 'otp:20430',
+      timestamp: new Date().toISOString()
     });
 
   } catch (error) {
