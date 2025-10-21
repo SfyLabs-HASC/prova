@@ -25,8 +25,10 @@ export default async function handler(req, res) {
       });
     }
 
+    console.log('[API] PRIVATE_KEY found, length:', process.env.PRIVATE_KEY.length);
+
     // Configurazione per NeuroWeb testnet
-    const dkg = new DKG({
+    const dkgConfig = {
       environment: 'testnet',
       endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
       port: 8900,
@@ -39,9 +41,27 @@ export default async function handler(req, res) {
       nodeApiVersion: '/v1',
       maxNumberOfRetries: 30,
       frequency: 2,
-    });
+    };
+
+    console.log('[API] DKG config:', JSON.stringify(dkgConfig, null, 2));
+
+    const dkg = new DKG(dkgConfig);
+    console.log('[API] DKG instance created');
+
+    // Test if DKG is properly initialized
+    if (!dkg || !dkg.wallet) {
+      throw new Error('DKG initialization failed - wallet not available');
+    }
 
     console.log('[API] DKG SDK initialized successfully');
+
+    // Test DKG connection first
+    try {
+      const nodeInfo = await dkg.node.info();
+      console.log('[API] DKG node info:', nodeInfo);
+    } catch (nodeError) {
+      console.warn('[API] DKG node connection failed:', nodeError.message);
+    }
 
     // Get wallet address
     const address = await dkg.wallet.getAddress();
