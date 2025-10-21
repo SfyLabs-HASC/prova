@@ -26,17 +26,18 @@ export default async (req, res) => {
     }
 
     console.log('[API] Initializing DKG SDK...');
-    // Inizializza DKG SDK v8
+    // Inizializza DKG SDK v8 con variabili d'ambiente
     const dkg = new DKG({
-      environment: 'testnet',
-      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
-      port: 8900,
+      environment: process.env.DKG_ENV || 'testnet',
+      endpoint: process.env.DKG_ENDPOINT || 'https://v6-pegasus-node-02.origin-trail.network',
+      port: Number(process.env.DKG_PORT || 8900),
       blockchain: {
-        name: 'otp:20430',
+        name: process.env.DKG_CHAIN_NAME || 'otp:20430',
         privateKey: process.env.PRIVATE_KEY,
-        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+        hubContract: process.env.DKG_HUB_CONTRACT || '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+        ...(process.env.DKG_RPC ? { rpc: process.env.DKG_RPC } : {}),
       },
-      nodeApiVersion: '/v1',
+      nodeApiVersion: process.env.DKG_NODE_API_VERSION || '/v1',
     });
 
     console.log('[API] DKG SDK initialized successfully');
@@ -59,8 +60,8 @@ export default async (req, res) => {
     console.log('[API] Calling dkg.asset.create...');
     // Crea il Knowledge Asset
     const result = await dkg.asset.create(content, {
-      epochsNum: 1,
-      scoreFunctionId: 2,
+      epochsNum: Number(process.env.EPOCHS_NUM || 1),
+      scoreFunctionId: Number(process.env.SCORE_FUNCTION_ID || 2),
     });
 
     console.log('[API] Asset created successfully!', result);
