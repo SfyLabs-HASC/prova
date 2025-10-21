@@ -1,5 +1,3 @@
-const DKG = require('dkg.js');
-
 module.exports = async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -25,6 +23,9 @@ module.exports = async (req, res) => {
       });
     }
 
+    // Import DKG dynamically to avoid issues
+    const DKG = require('dkg.js');
+
     // Configurazione per NeuroWeb testnet
     const dkg = new DKG({
       environment: 'testnet',
@@ -43,13 +44,24 @@ module.exports = async (req, res) => {
 
     console.log('[API] DKG SDK initialized successfully');
 
-    // Get wallet balance
-    const balance = await dkg.wallet.getBalance();
-    console.log('[API] Wallet balance:', balance);
-
-    // Get wallet address
+    // Get wallet address first (simpler operation)
     const address = await dkg.wallet.getAddress();
     console.log('[API] Wallet address:', address);
+
+    // Get wallet balance with timeout
+    let balance = null;
+    try {
+      balance = await Promise.race([
+        dkg.wallet.getBalance(),
+        new Promise((_, reject) => 
+          setTimeout(() => reject(new Error('Balance check timeout')), 10000)
+        )
+      ]);
+      console.log('[API] Wallet balance:', balance);
+    } catch (balanceError) {
+      console.warn('[API] Balance check failed:', balanceError.message);
+      balance = 'Unable to fetch balance';
+    }
 
     return res.status(200).json({
       status: 'success',
