@@ -92,14 +92,14 @@ export default async function handler(req, res) {
     const createAssetPromise = dkg.asset.create(content, {
       epochsNum: 0, // Nessun epoch per velocità massima
       scoreFunctionId: 0, // Score function più veloce
-      maxNumberOfRetries: 1, // Ridotto retry
-      frequency: 1000, // Check ogni secondo
+      maxNumberOfRetries: 0, // Nessun retry per velocità massima
+      frequency: 500, // Check ogni 500ms per velocità
     });
     
     console.log('[API] Asset creation started, waiting for completion...');
     
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000); // 5 minutes
+      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 2 minutes')), 120000); // 2 minutes
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);

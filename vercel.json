@@ -2,7 +2,7 @@
   "version": 2,
   "functions": {
     "api/create-asset.js": {
-      "maxDuration": 300
+      "maxDuration": 120
     },
     "api/wallet-status.js": {
       "maxDuration": 30
