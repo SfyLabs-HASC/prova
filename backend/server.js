@@ -4,6 +4,21 @@ import DKG from 'dkg.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+// Configurable request timeout for long-running DKG asset creation
+const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 720000); // default 12 minutes
+
+// DKG configuration via environment variables (sensible defaults for NeuroWeb testnet)
+const DKG_ENV = process.env.DKG_ENV || 'testnet';
+const DKG_ENDPOINT = process.env.DKG_ENDPOINT || 'https://v6-pegasus-node-02.origin-trail.network';
+const DKG_PORT = Number(process.env.DKG_PORT || 8900);
+const DKG_CHAIN_NAME = process.env.DKG_CHAIN_NAME || 'otp:20430';
+const DKG_HUB_CONTRACT = process.env.DKG_HUB_CONTRACT || '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6';
+const DKG_RPC = process.env.DKG_RPC; // optional, only included if set
+const DKG_NODE_API_VERSION = process.env.DKG_NODE_API_VERSION || '/v1';
+const DKG_MAX_RETRIES = Number(process.env.DKG_MAX_RETRIES || 30);
+const DKG_FREQUENCY = Number(process.env.DKG_FREQUENCY || 2);
+const EPOCHS_NUM = Number(process.env.EPOCHS_NUM || 1);
+const SCORE_FUNCTION_ID = Number(process.env.SCORE_FUNCTION_ID || 2);
 
 // Middleware - CORS configurato per permettere tutte le origini
 app.use(cors({
@@ -36,19 +51,18 @@ app.post('/api/create-asset', async (req, res) => {
 
     console.log('[Backend] Initializing DKG SDK...');
     const dkg = new DKG({
-      environment: 'testnet',
-      endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
-      port: 8900,
+      environment: DKG_ENV,
+      endpoint: DKG_ENDPOINT,
+      port: DKG_PORT,
       blockchain: {
-        name: 'otp:20430',
-        publicKey: '0x41d1038b4c5b27F192753974Da535034E216cC15',
+        name: DKG_CHAIN_NAME,
         privateKey: process.env.PRIVATE_KEY,
-        rpc: 'https://lofar-testnet.origin-trail.network',
-        hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+        hubContract: DKG_HUB_CONTRACT,
+        ...(DKG_RPC ? { rpc: DKG_RPC } : {}),
       },
-      nodeApiVersion: '/v1',
-      maxNumberOfRetries: 30,
-      frequency: 2,
+      nodeApiVersion: DKG_NODE_API_VERSION,
+      maxNumberOfRetries: DKG_MAX_RETRIES,
+      frequency: DKG_FREQUENCY,
     });
 
     console.log('[Backend] DKG SDK initialized successfully');
@@ -69,15 +83,16 @@ app.post('/api/create-asset', async (req, res) => {
     };
 
     console.log('[Backend] Calling dkg.asset.create...');
+    console.log(`[Backend] Timeout set to ${Math.round(REQUEST_TIMEOUT_MS / 60000)} minutes`);
     
     // Timeout wrapper - max 5 minuti
     const createAssetPromise = dkg.asset.create(content, {
-      epochsNum: 2,
-      scoreFunctionId: 2,
+      epochsNum: EPOCHS_NUM,
+      scoreFunctionId: SCORE_FUNCTION_ID,
     });
     
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000);
+      setTimeout(() => reject(new Error(`Timeout: Asset creation took more than ${Math.round(REQUEST_TIMEOUT_MS / 60000)} minutes`)), REQUEST_TIMEOUT_MS);
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);
