@@ -1,5 +1,3 @@
-const DKG = require('dkg.js');
-
 module.exports = async (req, res) => {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
@@ -26,6 +24,9 @@ module.exports = async (req, res) => {
     }
 
     console.log('[API] Initializing DKG SDK...');
+    
+    // Import DKG dynamically to avoid issues
+    const DKG = require('dkg.js');
     
     // Configurazione per NeuroWeb testnet
     const dkg = new DKG({
