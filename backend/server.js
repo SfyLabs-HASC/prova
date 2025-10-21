@@ -41,10 +41,14 @@ app.post('/api/create-asset', async (req, res) => {
       port: 8900,
       blockchain: {
         name: 'otp:20430',
+        publicKey: '0x41d1038b4c5b27F192753974Da535034E216cC15',
         privateKey: process.env.PRIVATE_KEY,
+        rpc: 'https://lofar-testnet.origin-trail.network',
         hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
       },
       nodeApiVersion: '/v1',
+      maxNumberOfRetries: 30,
+      frequency: 2,
     });
 
     console.log('[Backend] DKG SDK initialized successfully');
