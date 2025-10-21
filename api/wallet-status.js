@@ -1,4 +1,4 @@
-module.exports = async (req, res) => {
+export default async function handler(req, res) {
   // CORS headers
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -16,18 +16,10 @@ module.exports = async (req, res) => {
   try {
     console.log('[API] Checking wallet status...');
 
-    if (!process.env.PRIVATE_KEY) {
-      return res.status(500).json({ 
-        error: 'PRIVATE_KEY environment variable is missing',
-        status: 'error'
-      });
-    }
-
-    // For now, just return basic info without DKG
     return res.status(200).json({
       status: 'success',
       message: 'Wallet check endpoint working',
-      hasPrivateKey: true,
+      hasPrivateKey: !!process.env.PRIVATE_KEY,
       network: 'NeuroWeb Testnet',
       chainId: 'otp:20430',
       timestamp: new Date().toISOString()
@@ -41,4 +33,4 @@ module.exports = async (req, res) => {
       status: 'error'
     });
   }
-};
+}
