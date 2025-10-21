@@ -59,7 +59,7 @@ export default async (req, res) => {
     console.log('[API] Calling dkg.asset.create...');
     // Crea il Knowledge Asset
     const result = await dkg.asset.create(content, {
-      epochsNum: 2,
+      epochsNum: 1,
       scoreFunctionId: 2,
     });
 

@@ -4,6 +4,8 @@ import DKG from 'dkg.js';
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+// Configurable request timeout for long-running DKG asset creation
+const REQUEST_TIMEOUT_MS = Number(process.env.REQUEST_TIMEOUT_MS || 720000); // default 12 minutes
 
 // Middleware - CORS configurato per permettere tutte le origini
 app.use(cors({
@@ -41,9 +43,7 @@ app.post('/api/create-asset', async (req, res) => {
       port: 8900,
       blockchain: {
         name: 'otp:20430',
-        publicKey: '0x41d1038b4c5b27F192753974Da535034E216cC15',
         privateKey: process.env.PRIVATE_KEY,
-        rpc: 'https://lofar-testnet.origin-trail.network',
         hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
       },
       nodeApiVersion: '/v1',
@@ -69,15 +69,16 @@ app.post('/api/create-asset', async (req, res) => {
     };
 
     console.log('[Backend] Calling dkg.asset.create...');
+    console.log(`[Backend] Timeout set to ${Math.round(REQUEST_TIMEOUT_MS / 60000)} minutes`);
     
     // Timeout wrapper - max 5 minuti
     const createAssetPromise = dkg.asset.create(content, {
-      epochsNum: 2,
+      epochsNum: 1,
       scoreFunctionId: 2,
     });
     
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000);
+      setTimeout(() => reject(new Error(`Timeout: Asset creation took more than ${Math.round(REQUEST_TIMEOUT_MS / 60000)} minutes`)), REQUEST_TIMEOUT_MS);
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);
