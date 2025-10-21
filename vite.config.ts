@@ -16,5 +16,18 @@ export default defineConfig(({ mode }) => {
       'process.env': env,
       global: 'globalThis',
     },
+    resolve: {
+      alias: {
+        // Fix for assertion-tools ethers import issue
+        'ethers': 'ethers/lib.esm/index.js',
+      },
+    },
+    optimizeDeps: {
+      esbuildOptions: {
+        define: {
+          global: 'globalThis',
+        },
+      },
+    },
   };
 });
