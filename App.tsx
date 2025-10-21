@@ -22,7 +22,7 @@ const App: React.FC = () => {
 
     try {
       // Chiama il backend serverless invece di usare dkg.js direttamente
-      const response = await fetch('/api/create-asset', {
+      const response = await fetch('https://prova-urkt.onrender.com/api/create-asset', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
