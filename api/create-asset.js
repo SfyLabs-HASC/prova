@@ -66,6 +66,10 @@ export default async function handler(req, res) {
       throw new Error('DKG initialization failed - blockchain not available');
     }
 
+    // Get wallet address for logging
+    const address = dkg.blockchain.blockchainService.config.blockchain.publicKey;
+    console.log('[API] Using wallet address:', address);
+
     console.log('[API] DKG SDK initialized successfully');
 
     const content = {

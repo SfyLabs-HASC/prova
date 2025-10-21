@@ -87,30 +87,20 @@ export default async function handler(req, res) {
 
     console.log('[API] DKG blockchain available');
 
-    // Get wallet address using blockchain
+    // Get wallet address from blockchain config
     let address;
     try {
-      address = await dkg.blockchain.getAddress();
+      address = dkg.blockchain.blockchainService.config.blockchain.publicKey;
       console.log('[API] Wallet address:', address);
     } catch (addressError) {
       console.error('[API] Failed to get address:', addressError);
       throw new Error(`Failed to get wallet address: ${addressError.message}`);
     }
 
-    // Get wallet balance with timeout
-    let balance = null;
-    try {
-      balance = await Promise.race([
-        dkg.blockchain.getBalance(),
-        new Promise((_, reject) => 
-          setTimeout(() => reject(new Error('Balance check timeout')), 10000)
-        )
-      ]);
-      console.log('[API] Wallet balance:', balance);
-    } catch (balanceError) {
-      console.warn('[API] Balance check failed:', balanceError.message);
-      balance = 'Unable to fetch balance';
-    }
+    // For balance, we'll need to use a different approach
+    // For now, we'll return a placeholder
+    let balance = 'Balance check not implemented yet';
+    console.log('[API] Wallet balance:', balance);
 
     return res.status(200).json({
       status: 'success',
