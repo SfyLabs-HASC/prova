@@ -75,7 +75,9 @@ const App: React.FC = () => {
 
       setStatus(`KA creato con successo! UAL: ${ka.UAL}`);
     } catch (err: any) {
-      console.error(err);
+      console.error("Full error details:", err);
+      console.error("Error response:", err.response?.data);
+      
       let errorMessage = "Errore nella creazione del KA: ";
       
       if (err.message?.includes("blockchain name is missing")) {
@@ -84,8 +86,13 @@ const App: React.FC = () => {
         errorMessage += "Errore di connessione alla rete. Verifica la tua connessione internet e che il nodo sia raggiungibile.";
       } else if (err.message?.includes("REACT_APP_PRIVATE_KEY")) {
         errorMessage += err.message;
+      } else if (err.message?.includes("bid suggestion") && err.response?.status === 400) {
+        errorMessage += "Il wallet potrebbe non avere abbastanza TRAC o NEURO tokens. Assicurati che il wallet sia finanziato sul testnet NeuroWeb.";
       } else {
         errorMessage += err.message || "Errore sconosciuto";
+        if (err.response?.data) {
+          errorMessage += ` (Dettagli: ${JSON.stringify(err.response.data)})`;
+        }
       }
       
       setStatus(errorMessage);
