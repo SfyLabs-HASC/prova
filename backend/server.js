@@ -57,10 +57,18 @@ app.post('/api/create-asset', async (req, res) => {
     };
 
     console.log('[Backend] Calling dkg.asset.create...');
-    const result = await dkg.asset.create(content, {
+    
+    // Timeout wrapper - max 5 minuti
+    const createAssetPromise = dkg.asset.create(content, {
       epochsNum: 2,
       scoreFunctionId: 2,
     });
+    
+    const timeoutPromise = new Promise((_, reject) => {
+      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000);
+    });
+    
+    const result = await Promise.race([createAssetPromise, timeoutPromise]);
 
     console.log('[Backend] Asset created successfully!', result);
     return res.status(200).json({
