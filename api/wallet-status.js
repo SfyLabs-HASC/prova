@@ -76,21 +76,21 @@ export default async function handler(req, res) {
       throw new Error(`DKG node connection failed: ${nodeError.message}`);
     }
 
-    // Wait a bit for wallet to initialize
+    // Wait a bit for blockchain to initialize
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    if (!dkg.wallet) {
-      console.error('[API] DKG wallet is null after initialization');
+    if (!dkg.blockchain) {
+      console.error('[API] DKG blockchain is null after initialization');
       console.log('[API] DKG object keys:', Object.keys(dkg));
-      throw new Error('DKG wallet is not available');
+      throw new Error('DKG blockchain is not available');
     }
 
-    console.log('[API] DKG wallet available');
+    console.log('[API] DKG blockchain available');
 
-    // Get wallet address
+    // Get wallet address using blockchain
     let address;
     try {
-      address = await dkg.wallet.getAddress();
+      address = await dkg.blockchain.getAddress();
       console.log('[API] Wallet address:', address);
     } catch (addressError) {
       console.error('[API] Failed to get address:', addressError);
@@ -101,7 +101,7 @@ export default async function handler(req, res) {
     let balance = null;
     try {
       balance = await Promise.race([
-        dkg.wallet.getBalance(),
+        dkg.blockchain.getBalance(),
         new Promise((_, reject) => 
           setTimeout(() => reject(new Error('Balance check timeout')), 10000)
         )

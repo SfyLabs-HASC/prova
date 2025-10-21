@@ -62,8 +62,8 @@ export default async function handler(req, res) {
     }
 
     // Test if DKG is properly initialized
-    if (!dkg || !dkg.wallet) {
-      throw new Error('DKG initialization failed - wallet not available');
+    if (!dkg || !dkg.blockchain) {
+      throw new Error('DKG initialization failed - blockchain not available');
     }
 
     console.log('[API] DKG SDK initialized successfully');
