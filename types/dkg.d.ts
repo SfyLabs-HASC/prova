@@ -8,7 +8,7 @@ declare module 'dkg.js' {
   }
 
   interface DKGConfig {
-    environment?: string;
+    environment: string;
     endpoint: string;
     port: number;
     blockchain: BlockchainConfig;

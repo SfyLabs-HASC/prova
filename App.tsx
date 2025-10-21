@@ -40,6 +40,7 @@ const App: React.FC = () => {
       // Initialize NeuroWeb DKG SDK
       // Using official OriginTrail testnet node
       const dkg = new DKG({ 
+        environment: "testnet",
         endpoint: "https://v6-pegasus-node-02.origin-trail.network",
         port: 8900,
         blockchain: {
