@@ -8,13 +8,14 @@ declare module 'dkg.js' {
   }
 
   interface DKGConfig {
-    environment: string;
+    environment?: string;
     endpoint: string;
     port: number;
     blockchain: BlockchainConfig;
     maxNumberOfRetries?: number;
     frequency?: number;
     contentType?: string;
+    nodeApiVersion?: string;
   }
 
   interface AssetContent {

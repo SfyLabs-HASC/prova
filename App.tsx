@@ -38,16 +38,16 @@ const App: React.FC = () => {
       );
 
       // Initialize NeuroWeb DKG SDK
-      // Using HTTPS endpoint on port 443 instead of HTTP on 8900
+      // Using official OriginTrail testnet node
       const dkg = new DKG({ 
-        environment: "testnet",
-        endpoint: "https://lofar-testnet.origin-trail.network",
-        port: 443,
+        endpoint: "https://v6-pegasus-node-02.origin-trail.network",
+        port: 8900,
         blockchain: {
           name: "otp:20430",
           publicKey: wallet.address,
           privateKey: process.env.REACT_APP_PRIVATE_KEY
-        }
+        },
+        nodeApiVersion: "/v1"
       });
 
       // Create the Knowledge Asset
