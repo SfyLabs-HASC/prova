@@ -91,14 +91,14 @@ export default async function handler(req, res) {
     console.log('[API] Calling dkg.asset.create...');
     console.log('[API] Content to create:', JSON.stringify(content, null, 2));
     
-    // Crea il Knowledge Asset con timeout ridotto
+    // Crea il Knowledge Asset con timeout aumentato
     const createAssetPromise = dkg.asset.create(content, {
-      epochsNum: 1,
-      scoreFunctionId: 2,
+      epochsNum: 0, // Ridotto per velocità
+      scoreFunctionId: 1, // Cambiato per velocità
     });
     
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 2 minutes')), 120000); // 2 minutes
+      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 5 minutes')), 300000); // 5 minutes
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);
