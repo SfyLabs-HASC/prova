@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     console.log('[API] Initializing DKG SDK...');
     
-    // Simplified DKG configuration
+    // DKG configuration with RPC
     let dkg;
     try {
       dkg = new DKG({
@@ -38,6 +38,7 @@ export default async function handler(req, res) {
           name: 'otp:20430',
           privateKey: process.env.PRIVATE_KEY,
           hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+          rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
         },
         nodeApiVersion: '/v1',
       });

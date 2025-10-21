@@ -27,7 +27,7 @@ export default async function handler(req, res) {
 
     console.log('[API] PRIVATE_KEY found, length:', process.env.PRIVATE_KEY.length);
 
-    // Try different DKG configuration
+    // Try different DKG configuration with RPC
     let dkg;
     try {
       dkg = new DKG({
@@ -38,6 +38,7 @@ export default async function handler(req, res) {
           name: 'otp:20430',
           privateKey: process.env.PRIVATE_KEY,
           hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+          rpc: 'https://rpc-neuroweb-testnet.origin-trail.network',
         },
         nodeApiVersion: '/v1',
       });
@@ -54,6 +55,16 @@ export default async function handler(req, res) {
     // Test if DKG is properly initialized
     if (!dkg) {
       throw new Error('DKG instance is null');
+    }
+
+    // Test DKG connection first
+    try {
+      console.log('[API] Testing DKG connection...');
+      const nodeInfo = await dkg.node.info();
+      console.log('[API] DKG node info:', nodeInfo);
+    } catch (nodeError) {
+      console.error('[API] DKG node connection failed:', nodeError);
+      throw new Error(`DKG node connection failed: ${nodeError.message}`);
     }
 
     if (!dkg.wallet) {
