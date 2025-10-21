@@ -33,6 +33,7 @@ declare module 'dkg.js' {
 
   interface CreateAssetOptions {
     epochsNum: number;
+    scoreFunctionId?: number;
     immutable?: boolean;
     tokenAmount?: string;
     paranetUAL?: string;

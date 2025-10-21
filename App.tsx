@@ -67,7 +67,10 @@ const App: React.FC = () => {
         }
       };
       
-      const ka = await dkg.asset.create(content, { epochsNum: 2 });
+      const ka = await dkg.asset.create(content, { 
+        epochsNum: 2,
+        scoreFunctionId: 2  // Default for testnet
+      });
 
       setStatus(`KA creato con successo! UAL: ${ka.UAL}`);
     } catch (err: any) {
