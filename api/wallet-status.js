@@ -27,22 +27,31 @@ export default async function handler(req, res) {
 
     console.log('[API] PRIVATE_KEY found, length:', process.env.PRIVATE_KEY.length);
 
-    // Try different DKG configuration with RPC
+    // Try DKG configuration using environment variables
     let dkg;
     try {
       dkg = new DKG({
-        environment: 'testnet',
-        endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
-        port: 8900,
+        environment: process.env.DKG_ENV || 'testnet',
+        endpoint: process.env.DKG_ENDPOINT || 'https://v6-pegasus-node-02.origin-trail.network',
+        port: parseInt(process.env.DKG_PORT) || 8900,
         blockchain: {
-          name: 'otp:20430',
+          name: process.env.DKG_CHAIN_NAME || 'otp:20430',
           privateKey: process.env.PRIVATE_KEY,
-          hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
-          rpc: 'https://lofar-testnet.origin-trail.network',
+          hubContract: process.env.DKG_HUB_CONTRACT || '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
+          rpc: process.env.DKG_RPC || 'https://lofar-testnet.origin-trail.network',
         },
-        nodeApiVersion: '/v1',
+        nodeApiVersion: process.env.DKG_NODE_API_VERSION || '/v1',
       });
       console.log('[API] DKG instance created successfully');
+      console.log('[API] DKG config:', {
+        environment: process.env.DKG_ENV,
+        endpoint: process.env.DKG_ENDPOINT,
+        port: process.env.DKG_PORT,
+        chainName: process.env.DKG_CHAIN_NAME,
+        hubContract: process.env.DKG_HUB_CONTRACT,
+        rpc: process.env.DKG_RPC,
+        nodeApiVersion: process.env.DKG_NODE_API_VERSION
+      });
     } catch (dkgError) {
       console.error('[API] DKG creation failed:', dkgError);
       return res.status(500).json({
@@ -67,7 +76,12 @@ export default async function handler(req, res) {
       throw new Error(`DKG node connection failed: ${nodeError.message}`);
     }
 
+    // Wait a bit for wallet to initialize
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
     if (!dkg.wallet) {
+      console.error('[API] DKG wallet is null after initialization');
+      console.log('[API] DKG object keys:', Object.keys(dkg));
       throw new Error('DKG wallet is not available');
     }
 
