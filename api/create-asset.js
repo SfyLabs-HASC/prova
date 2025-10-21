@@ -85,21 +85,32 @@ export default async function handler(req, res) {
     console.log('[API] Calling dkg.asset.create...');
     console.log('[API] Content to create:', JSON.stringify(content, null, 2));
     
-    // Crea il Knowledge Asset con configurazione ottimizzata per velocità
+    // Crea il Knowledge Asset con configurazione ultra-veloce
     const createAssetPromise = dkg.asset.create(content, {
-      epochsNum: 0, // Nessun epoch per velocità massima
+      epochsNum: 0, // Nessun epoch
       scoreFunctionId: 0, // Score function più veloce
-      maxNumberOfRetries: 0, // Nessun retry per velocità massima
-      frequency: 500, // Check ogni 500ms per velocità
+      maxNumberOfRetries: 0, // Nessun retry
+      frequency: 200, // Check ogni 200ms per velocità massima
     });
     
     console.log('[API] Asset creation started, waiting for completion...');
     
+    // Aggiungi un timer per monitorare il progresso
+    const progressTimer = setInterval(() => {
+      console.log('[API] Asset creation still in progress...');
+    }, 10000); // Log ogni 10 secondi
+    
     const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error('Timeout: Asset creation took more than 2 minutes')), 120000); // 2 minutes
+      setTimeout(() => {
+        clearInterval(progressTimer);
+        reject(new Error('Timeout: Asset creation took more than 2 minutes'));
+      }, 120000); // 2 minutes
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);
+    
+    // Pulisci il timer se l'asset è stato creato con successo
+    clearInterval(progressTimer);
 
     console.log('[API] Asset created successfully!', result);
     return res.status(200).json({
