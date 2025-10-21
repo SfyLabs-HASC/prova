@@ -33,19 +33,25 @@ export default async function handler(req, res) {
     try {
       dkg = new DKG({
         environment: 'testnet',
+        endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
+        port: 8900,
         blockchain: {
           name: 'otp:20430',
           privateKey: process.env.PRIVATE_KEY,
           hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
           rpc: 'https://lofar-testnet.origin-trail.network',
         },
+        nodeApiVersion: '/v1',
       });
       console.log('[API] DKG instance created successfully');
       console.log('[API] DKG config:', {
         environment: 'testnet',
+        endpoint: 'https://v6-pegasus-node-02.origin-trail.network',
+        port: 8900,
         chainName: 'otp:20430',
         hubContract: '0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6',
-        rpc: 'https://lofar-testnet.origin-trail.network'
+        rpc: 'https://lofar-testnet.origin-trail.network',
+        nodeApiVersion: '/v1'
       });
     } catch (dkgError) {
       console.error('[API] DKG creation failed:', dkgError);
