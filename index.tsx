@@ -1,12 +1,8 @@
 
-import { Buffer } from 'buffer';
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import './src/index.css';
-
-// Polyfill Buffer for browser environment
-window.Buffer = Buffer;
 
 const rootElement = document.getElementById('root');
 if (!rootElement) {

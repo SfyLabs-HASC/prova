@@ -1,6 +1,4 @@
 import React, { useState } from "react";
-import DKG from "dkg.js";
-import { ethers } from "ethers";
 
 const App: React.FC = () => {
   const [form, setForm] = useState({
@@ -23,79 +21,31 @@ const App: React.FC = () => {
     setIsLoading(true);
 
     try {
-      // Setup provider for NeuroWeb Testnet
-      const provider = new ethers.providers.JsonRpcProvider(
-        "https://lofar-testnet.origin-trail.network"
-      );
-      
-      if (!process.env.REACT_APP_PRIVATE_KEY) {
-        throw new Error("La variabile d'ambiente REACT_APP_PRIVATE_KEY non è impostata. Creare un file .env e aggiungerla.");
-      }
-
-      const wallet = new ethers.Wallet(
-        process.env.REACT_APP_PRIVATE_KEY,
-        provider
-      );
-
-      // Initialize NeuroWeb DKG SDK
-      // Using official OriginTrail testnet node
-      const dkg = new DKG({ 
-        environment: "testnet",
-        endpoint: "https://v6-pegasus-node-02.origin-trail.network",
-        port: 8900,
-        blockchain: {
-          name: "otp:20430",
-          publicKey: wallet.address,
-          privateKey: process.env.REACT_APP_PRIVATE_KEY,
-          hubContract: "0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6"
+      // Chiama il backend serverless invece di usare dkg.js direttamente
+      const response = await fetch('/api/create-asset', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
         },
-        nodeApiVersion: "/v1"
+        body: JSON.stringify({
+          name: form.name,
+          description: form.description,
+          productionDate: form.productionDate,
+          origin: form.origin,
+          documentHash: form.documentHash,
+        }),
       });
 
-      // Create the Knowledge Asset
-      const content = {
-        public: {
-          "@context": {
-            "sc": "https://simplychain.it/schema#",
-            "schema": "https://schema.org/"
-          },
-          "@type": "sc:CertifiedProduct",
-          "schema:name": form.name,
-          "schema:description": form.description,
-          "sc:productionDate": form.productionDate,
-          "sc:origin": form.origin,
-          "sc:documentHash": form.documentHash
-        }
-      };
-      
-      const ka = await dkg.asset.create(content, { 
-        epochsNum: 2,
-        scoreFunctionId: 2  // Default for testnet
-      });
+      const data = await response.json();
 
-      setStatus(`KA creato con successo! UAL: ${ka.UAL}`);
-    } catch (err: any) {
-      console.error("Full error details:", err);
-      console.error("Error response:", err.response?.data);
-      
-      let errorMessage = "Errore nella creazione del KA: ";
-      
-      if (err.message?.includes("blockchain name is missing")) {
-        errorMessage += "Configurazione blockchain mancante. Verifica le impostazioni.";
-      } else if (err.code === "NETWORK_ERROR" || err.message?.includes("ERR_NAME_NOT_RESOLVED")) {
-        errorMessage += "Errore di connessione alla rete. Verifica la tua connessione internet e che il nodo sia raggiungibile.";
-      } else if (err.message?.includes("REACT_APP_PRIVATE_KEY")) {
-        errorMessage += err.message;
-      } else if (err.message?.includes("bid suggestion") && err.response?.status === 400) {
-        errorMessage += "Il wallet potrebbe non avere abbastanza TRAC o NEURO tokens. Assicurati che il wallet sia finanziato sul testnet NeuroWeb.";
-      } else {
-        errorMessage += err.message || "Errore sconosciuto";
-        if (err.response?.data) {
-          errorMessage += ` (Dettagli: ${JSON.stringify(err.response.data)})`;
-        }
+      if (!response.ok) {
+        throw new Error(data.error || 'Errore nella creazione del KA');
       }
-      
-      setStatus(errorMessage);
+
+      setStatus(`✅ KA creato con successo! UAL: ${data.UAL}`);
+    } catch (err: any) {
+      console.error("Errore:", err);
+      setStatus(`❌ Errore: ${err.message}`);
     } finally {
       setIsLoading(false);
     }
