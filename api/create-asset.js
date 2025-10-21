@@ -33,8 +33,8 @@ export default async function handler(req, res) {
     try {
       dkg = new DKG({
         environment: process.env.DKG_ENV || 'testnet',
-        endpoint: process.env.DKG_ENDPOINT || 'https://v6-pegasus-node-02.origin-trail.network',
-        port: parseInt(process.env.DKG_PORT) || 8900,
+        // endpoint: process.env.DKG_ENDPOINT || 'https://v8-pegasus-node-02.origin-trail.network',
+        // port: parseInt(process.env.DKG_PORT) || 8900,
         blockchain: {
           name: process.env.DKG_CHAIN_NAME || 'otp:20430',
           privateKey: process.env.PRIVATE_KEY,
