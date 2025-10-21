@@ -45,7 +45,8 @@ const App: React.FC = () => {
         blockchain: {
           name: "otp:20430",
           publicKey: wallet.address,
-          privateKey: process.env.REACT_APP_PRIVATE_KEY
+          privateKey: process.env.REACT_APP_PRIVATE_KEY,
+          hubContract: "0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6"
         },
         nodeApiVersion: "/v1"
       });
