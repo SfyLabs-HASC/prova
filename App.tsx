@@ -38,10 +38,9 @@ const App: React.FC = () => {
       );
 
       // Initialize NeuroWeb DKG SDK
+      // Note: Don't specify endpoint/port to use public DKG nodes automatically
       const dkg = new DKG({ 
         environment: "testnet",
-        endpoint: "https://lofar-testnet.origin-trail.network",
-        port: 8900,
         blockchain: {
           name: "otp:20430",
           publicKey: wallet.address,
