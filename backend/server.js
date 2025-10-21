@@ -5,9 +5,17 @@ import DKG from 'dkg.js';
 const app = express();
 const PORT = process.env.PORT || 3001;
 
-// Middleware
-app.use(cors());
+// Middleware - CORS configurato per permettere tutte le origini
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type'],
+  credentials: true
+}));
 app.use(express.json());
+
+// Gestisci preflight requests
+app.options('*', cors());
 
 // Health check
 app.get('/', (req, res) => {
