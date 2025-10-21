@@ -36,9 +36,14 @@
     "DKG_PORT": "8900",
     "DKG_CHAIN_NAME": "otp:20430",
     "DKG_HUB_CONTRACT": "0xBbfF7Ea6b2Addc1f38A0798329e12C08f03750A6",
-          "DKG_RPC": "https://lofar-testnet.origin-trail.network",
+    "DKG_RPC": "https://lofar-testnet.origin-trail.network",
     "DKG_NODE_API_VERSION": "/v1",
     "EPOCHS_NUM": "1",
     "SCORE_FUNCTION_ID": "2"
+  },
+  "vercel": {
+    "protectionBypass": {
+      "api": true
+    }
   }
 }
