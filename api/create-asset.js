@@ -75,16 +75,13 @@ export default async function handler(req, res) {
 
     const content = {
       public: {
-        '@context': {
-          sc: 'https://simplychain.it/schema#',
-          schema: 'https://schema.org/',
-        },
-        '@type': 'sc:CertifiedProduct',
-        'schema:name': name,
-        'schema:description': description,
-        'sc:productionDate': productionDate,
-        'sc:origin': origin,
-        'sc:documentHash': documentHash,
+        '@context': 'https://schema.org/',
+        '@type': 'Product',
+        'name': name,
+        'description': description,
+        'productionDate': productionDate,
+        'origin': origin,
+        'documentHash': documentHash,
       },
     };
 
@@ -96,7 +93,7 @@ export default async function handler(req, res) {
       epochsNum: 0, // Nessun epoch
       scoreFunctionId: 0, // Score function più veloce
       maxNumberOfRetries: 0, // Nessun retry
-      frequency: 200, // Check ogni 200ms per velocità massima
+      frequency: 100, // Check ogni 100ms per velocità massima
     });
     
     console.log('[API] Asset creation started, waiting for completion...');
@@ -109,8 +106,8 @@ export default async function handler(req, res) {
     const timeoutPromise = new Promise((_, reject) => {
       setTimeout(() => {
         clearInterval(progressTimer);
-        reject(new Error('Timeout: Asset creation took more than 2 minutes'));
-      }, 120000); // 2 minutes
+        reject(new Error('Timeout: Asset creation took more than 1 minute'));
+      }, 60000); // 1 minute
     });
     
     const result = await Promise.race([createAssetPromise, timeoutPromise]);
